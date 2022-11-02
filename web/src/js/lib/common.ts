@@ -4,8 +4,8 @@ export const isDev = window.location.hostname=='localhost' || window.location.ho
 export const isProd = !isDev;
 
 /// Transform a long string like "startXXXXXXend" into "start...end"
-export function shorten(text: string, start=5, end=3): string {
-    return !text ? '' : text.slice(0, start) + '...' + text.slice(-end);
+export function shorten(text: string, start=5, end=3, separator='...'): string {
+    return !text ? '' : text.slice(0, start) + separator + text.slice(-end);
 }
 
 /// Get a date in relative time, e.g. "5 days ago"
