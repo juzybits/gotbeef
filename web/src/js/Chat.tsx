@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, SyntheticEvent } from 'react';
 
 import { GetObjectDataResponse } from '@mysten/sui.js';
 import { useWallet } from '@mysten/wallet-adapter-react';
@@ -58,7 +58,7 @@ export function Chat(props: any)
 
     /* Handlers */
 
-    const onSubmitAddMessage = (e: any) => {
+    const onSubmitAddMessage = (e: SyntheticEvent) => {
         e.preventDefault();
         setError('');
         console.debug(`[onSubmitAddMessage] Calling chat::add_message on package: ${POLYMEDIA_PACKAGE}`);
@@ -147,14 +147,36 @@ export function Chat(props: any)
         };
     };
 
+    const AuthorSpan = (props: any) => {
+        const tooltip = (message: string) => {
+            console.debug('[AuthorSpan] ' + message);
+        };
+        const onClick = (e: SyntheticEvent) => {
+            e.preventDefault();
+            navigator.clipboard
+                .writeText(props.msg.author)
+                .then( () => tooltip('Copied!') )
+                .catch( (err) => console.error(`[AuthorSpan] Error copying to clipboard: ${err}`) );
+        };
+        return <>
+            <a onClick={onClick} style={cssAuthor(props.msg.author)}>
+                {shorten(props.msg.author.slice(2), 3, 3, '..')}
+            </a>
+        </>;
+    };
+
     return <div id='page'>
 
         <h2>CHAT</h2>
-        <p>A message board to find other players.</p>
+        <p>
+            A message board to find other players.
+            <br/>
+            Pro tip: click an address to copy it.
+        </p>
 
         <div id='messageList' style={cssMessageList}>{messages.map((msg, idx) =>
             <div key={idx} style={cssMessage}>
-                <span style={cssAuthor(msg.author)}>{shorten(msg.author.slice(2), 3, 3, '..')}</span>: {msg.text}
+                <AuthorSpan msg={msg} />: {msg.text}
             </div>
         )}
         </div>
