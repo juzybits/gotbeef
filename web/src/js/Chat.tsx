@@ -134,6 +134,19 @@ export function Chat(props: any)
         padding: '0.8em 1em',
     };
 
+    const cssAuthor = (author_address?: string) => {
+        let red = parseInt( author_address.slice(2, 4), 16 );
+        let green = parseInt( author_address.slice(4, 6), 16 );
+        let blue = parseInt( author_address.slice(6, 8), 16 );
+        let min_val = 127;
+        if (red < min_val)   { red   = 255 - red; }
+        if (green < min_val) { green = 255 - green; }
+        if (blue < min_val)  { blue  = 255 - blue; }
+        return {
+            color: `rgb(${red}, ${green}, ${blue})`,
+        };
+    };
+
     return <div id='page'>
 
         <h2>CHAT</h2>
@@ -141,7 +154,7 @@ export function Chat(props: any)
 
         <div id='messageList' style={cssMessageList}>{messages.map((msg, idx) =>
             <div key={idx} style={cssMessage}>
-                {shorten(msg.author.slice(2), 3, 3, '..')}: {msg.text}
+                <span style={cssAuthor(msg.author)}>{shorten(msg.author.slice(2), 3, 3, '..')}</span>: {msg.text}
             </div>
         )}
         </div>
