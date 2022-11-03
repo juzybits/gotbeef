@@ -147,16 +147,16 @@ export function Chat(props: any)
         };
     };
 
-    const AuthorSpan = (props: any) => {
+    const MagicAddress = (props: any) => {
         const tooltip = (message: string) => {
-            console.debug('[AuthorSpan] ' + message);
+            console.debug('[MagicAddress] ' + message);
         };
         const onClick = (e: SyntheticEvent) => {
             e.preventDefault();
             navigator.clipboard
                 .writeText(props.address)
                 .then( () => tooltip('Copied!') )
-                .catch( (err) => console.error(`[AuthorSpan] Error copying to clipboard: ${err}`) );
+                .catch( (err) => console.error(`[MagicAddress] Error copying to clipboard: ${err}`) );
         };
         return <>
             <a onClick={onClick} style={cssAuthor(props.address)}>
@@ -165,13 +165,22 @@ export function Chat(props: any)
         </>;
     };
 
-    const MagicText = (text: string) => {
-        const addresses = text.match(/0x[a-fA-F0-9]+/g) || [];
+    const MagicText = (props: any) => {
+        const addressRegex = new RegExp(/0x[a-fA-F0-9]+/g);
+        const addresses = props.plainText.match(addressRegex) || [];
+        const texts = props.plainText.split(addressRegex);
+
+        let key = 0;
+        const chunk = (contents) => {
+            return <React.Fragment key={key++}>{contents}</React.Fragment>;
+        };
+
+        let result = [ chunk(texts.shift()) ];
         for (address of addresses) {
-            console.log('replacing: ', address)
-            text = text.replace(address, shorten(address, 5, 3, '..'));
+            result.push( chunk(<MagicAddress address={address} />) );
+            result.push( chunk(texts.shift()) );
         }
-        return <>{text}</>;
+        return result;
     };
 
     return <div id='page'>
@@ -185,7 +194,7 @@ export function Chat(props: any)
 
         <div id='messageList' style={cssMessageList}>{messages.map((msg, idx) =>
             <div key={idx} style={cssMessage}>
-                <AuthorSpan address={msg.author} />: {MagicText(msg.text)}
+                <MagicAddress address={msg.author} />: <MagicText plainText={msg.text} />
             </div>
         )}
         </div>
