@@ -154,15 +154,24 @@ export function Chat(props: any)
         const onClick = (e: SyntheticEvent) => {
             e.preventDefault();
             navigator.clipboard
-                .writeText(props.msg.author)
+                .writeText(props.address)
                 .then( () => tooltip('Copied!') )
                 .catch( (err) => console.error(`[AuthorSpan] Error copying to clipboard: ${err}`) );
         };
         return <>
-            <a onClick={onClick} style={cssAuthor(props.msg.author)}>
-                {shorten(props.msg.author.slice(2), 3, 3, '..')}
+            <a onClick={onClick} style={cssAuthor(props.address)}>
+                {shorten(props.address.slice(2), 3, 3, '..')}
             </a>
         </>;
+    };
+
+    const MagicText = (text: string) => {
+        const addresses = text.match(/0x[a-fA-F0-9]+/g) || [];
+        for (address of addresses) {
+            console.log('replacing: ', address)
+            text = text.replace(address, shorten(address, 5, 3, '..'));
+        }
+        return <>{text}</>;
     };
 
     return <div id='page'>
@@ -176,7 +185,7 @@ export function Chat(props: any)
 
         <div id='messageList' style={cssMessageList}>{messages.map((msg, idx) =>
             <div key={idx} style={cssMessage}>
-                <AuthorSpan msg={msg} />: {msg.text}
+                <AuthorSpan address={msg.author} />: {MagicText(msg.text)}
             </div>
         )}
         </div>
